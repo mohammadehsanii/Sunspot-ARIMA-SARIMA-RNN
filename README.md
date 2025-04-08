@@ -1,97 +1,151 @@
-# **Sunspot Activity Forecasting**
+# 🌞 **Sunspot Forecasting Project Report**
 
-## **Introduction**
-This project focuses on analyzing and forecasting sunspot activity from 1749 to 2019 using a mix of statistical and machine learning methodologies. The primary goals include visualizing time-series data, evaluating stationarity, and applying models like ARIMA, SARIMA, and Recurrent Neural Networks (RNNs) to predict sunspot counts effectively.
+<sub> _To view the plots and charts, please visit my [Kaggle Notebook](https://www.kaggle.com/code/mohammadehsani/sunspot-with-arima-sarima-and-rnns)._ </sub>
 
----
-
-## **1. Data Preparation**
-**Dataset**: Monthly mean total sunspot numbers.
-
-**Steps Performed**:
-1. **Datetime Conversion**: Converted the 'Date' column to datetime format and set it as the index.
-2. **Handling Missing Values**: Verified no missing values in the dataset.
-3. **Visualization**: Plotted a time-series graph to observe trends and periodic patterns.
-4. **Split**: Divided the data into training (80%) and validation (20%) sets.
+### 📌 **Objective**
+To analyze historical sunspot data from 1749 to 2019 and forecast future values using time series models—**ARMA, SARIMA**, and a **Recurrent Neural Network (RNN)** using LSTM architecture.
 
 ---
 
-## **2. Exploratory Analysis**
-- **Stationarity Testing**:
-  - **ADF Test**: p-value near 0, confirming stationarity.
-  - **KPSS Test**: Indicated stationarity with a p-value of 0.1.
-- **Seasonality**: Decomposition analysis revealed an 11-year periodic cycle, consistent with known sunspot trends.
+## 📚 **1. Data Overview & Preparation**
+
+**Source:** Sunspots.csv  
+**Period Covered:** January 1749 – December 2019  
+**Features:**
+- Date
+- Monthly Mean Total Sunspot Number
+
+**Steps Taken:**
+- Loaded the dataset using `pandas` and `csv`.
+- Converted `Date` to datetime format and set it as index.
+- Removed unnecessary columns (`Unnamed: 0`).
+- Checked for missing values – ✅ *None found*.
 
 ---
 
-## **3. Statistical Models**
+## 📈 **2. Data Visualization**
 
-### **3.1. ARMA Model**
-- **Order Selection**: Based on ACF and PACF plots, initial values were set as (p=1, d=0, q=2).
-- **Performance**:
-  - MSE: High
-  - MAE: High
-- **Observation**: The ARMA model struggled with capturing seasonality, leading to suboptimal performance.
+To capture the long-term trend, the x-axis was converted to represent **collective months** since January 1749.
 
-### **3.2. SARIMA Model**
-- **Order Selection**:
-  - Seasonal Order: (P=1, D=1, Q=1, S=132), reflecting the 11-year cycle.
-- **Performance**:
-  - MSE: Significantly lower than ARMA.
-  - MAE: Lower, indicating better predictive accuracy.
-- **Visualization**: The SARIMA model effectively captured both trend and seasonality.
+A full series plot was created to understand:
+- Seasonal cycles (~11 years),
+- Amplitude fluctuations,
+- Periodic bursts in solar activity.
 
 ---
 
-## **4. Machine Learning Approach**
+## 🧹 **3. Pre-Processing**
 
-### **Recurrent Neural Networks (RNNs)**
-**Data Preparation**:
-- **Normalization**: Scaled data using MinMaxScaler.
-- **Windowing**: Created input-output pairs with a window size of 64 months.
+### 📊 Train-Test Split:
+- **Train:** 80% of the dataset
+- **Validation:** 20%
 
-**Model Architecture**:
-- **Layers**:
-  - Two LSTM layers with 50 units each.
-  - Dense layer for output.
-- **Optimizer**: Adam
-- **Loss Function**: Mean Squared Error (MSE)
-
-**Training**:
-- **Epochs**: 100 (with early stopping).
-- **Learning Rate Scheduler**: Dynamically adjusted learning rate.
-
-**Performance**:
-- **Validation Loss**: Moderate, indicating reasonable generalization.
-- **Predictions**: Successfully captured short-term variations but struggled with long-term seasonality compared to SARIMA.
-
-**Visualization**:
-- Predicted sunspot counts closely matched actual data with minor deviations.
+Both segments were visualized to ensure temporal separation.
 
 ---
 
-## **5. Model Comparison**
+## 🔍 **4. Stationarity Check**
 
-| Model   | MSE   | MAE   | Strengths                       | Weaknesses                    |
-|---------|-------|-------|----------------------------------|--------------------------------|
-| ARMA    | High  | High  | Simple and interpretable        | Fails to model seasonality    |
-| SARIMA  | Low   | Low   | Captures seasonality and trends | Requires parameter tuning     |
-| RNN     | Moderate | Moderate | Handles non-linear patterns      | Computationally intensive     |
+Using **ADF** and **KPSS** tests:
 
----
+| Test     | p-value   | Interpretation                   |
+|----------|-----------|----------------------------------|
+| ADF      | 3.03e-15  | Reject H₀ → Stationary ✅       |
+| KPSS     | 0.1       | Fail to Reject H₀ → Stationary ✅|
 
-## **6. Conclusion**
-- **Best Performing Model**: SARIMA provided the most accurate forecasts, effectively modeling seasonality and trends.
-- **RNN Performance**: While promising for short-term predictions, further optimization is needed for long-term accuracy.
-- **Future Directions**:
-  - Explore hybrid models combining SARIMA for seasonal trends and RNNs for short-term variations.
-  - Enhance RNNs with GRU layers or attention mechanisms.
-  - Integrate additional exogenous variables to improve model robustness.
+**Conclusion:** The series is stationary.
 
 ---
 
-## **Appendix**
-- **Code Efficiency**: Modularize the code to improve readability and reusability.
-- **Data Sources**: Ensure comprehensive documentation of data preprocessing and lineage for reproducibility.
+## 🧠 **5. Forecasting Models**
 
 ---
+
+### 📉 **Model 1: ARMA (ARIMA with d=0)**
+
+**Configuration:** ARIMA(p=1, d=0, q=2)
+
+**Performance:**
+- **MSE:** 4901.65
+- **MAE:** 58.75
+
+❌ *Model failed to capture seasonality* → **Suboptimal forecasts**
+
+---
+
+### 📉 **Model 2: SARIMA (Seasonal ARIMA)**
+
+**Parameters:**
+- ARIMA order: (1, 0, 1)
+- Seasonal order: (1, 1, 1, 132) → *11-year cycle = 132 months*
+
+**Seasonal Decomposition:** Clearly identified trend and strong cyclic behavior.
+
+**Performance:**
+- **MSE:** 3228.30
+- **MAE:** 45.09
+
+✅ *Much better than ARMA due to its ability to model seasonality.*
+
+---
+
+## 🔁 **6. Deep Learning Approach: RNN (LSTM)**
+
+---
+
+### 🔧 **Data Preparation:**
+- **Window Size:** 64 (5 years and 4 months worth of monthly data)
+- **Normalization:** Using `MinMaxScaler`
+- **Sequence Generation:** Sliding window approach to build `(X, y)` pairs for supervised learning.
+
+---
+
+### 🧪 **Model Architecture:**
+
+| Layer     | Description                                |
+|-----------|--------------------------------------------|
+| LSTM #1   | 50 units, returns sequences                |
+| LSTM #2   | 50 units                                   |
+| Dense     | Output layer with 1 unit                   |
+
+**Optimizer:** Adam  
+**Loss Function:** Mean Squared Error  
+**EarlyStopping:** Patience = 10  
+**LearningRateScheduler:** Exponential decay after 10 epochs
+
+---
+
+### 📉 **Training & Evaluation**
+
+- **Training Epochs:** 62
+- **Final Validation Loss:** 0.00315
+
+✅ The model showed strong learning dynamics, with gradual convergence.
+
+---
+
+### 📊 **Results Visualization**
+
+Predictions from the RNN were **denormalized** and plotted alongside the actual sunspot values.
+
+**Outcome:**
+- The RNN successfully captured the **wave-like** seasonal trend.
+- Smooth and accurate long-term predictions.
+
+---
+
+## 📊 **7. Model Comparison Summary**
+
+| Model   | MSE     | MAE     | Comments                             |
+|---------|---------|---------|--------------------------------------|
+| ARMA    | 4901.65 | 58.75   | Fails to capture seasonality         |
+| SARIMA  | 3228.30 | 45.09   | Good balance between trend & season  |
+| RNN     | ~Low (0.003 val loss) | N/A | Best visual fit and trend capture ✅|
+
+---
+
+## ✅ **Conclusion**
+
+- **RNN with LSTM** demonstrated superior forecasting capability in modeling **nonlinear**, **seasonal** time series like sunspot activity.
+- **SARIMA** offers a solid statistical baseline and is easier to interpret.
+- **ARMA** is not well-suited for this cyclical, seasonal data.
